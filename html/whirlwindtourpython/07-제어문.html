@@ -10,10 +10,10 @@
 
 <style type="text/css">
     pre { line-height: 125%; margin: 0; }
-td.linenos pre { color: #000000; background-color: #f0f0f0; padding-left: 5px; padding-right: 5px; }
-span.linenos { color: #000000; background-color: #f0f0f0; padding-left: 5px; padding-right: 5px; }
-td.linenos pre.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
-span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+td.linenos pre { color: #000000; background-color: #f0f0f0; padding: 0 5px 0 5px; }
+span.linenos { color: #000000; background-color: #f0f0f0; padding: 0 5px 0 5px; }
+td.linenos pre.special { color: #000000; background-color: #ffffc0; padding: 0 5px 0 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding: 0 5px 0 5px; }
 .highlight .hll { background-color: var(--jp-cell-editor-active-background) }
 .highlight { background: var(--jp-cell-editor-background); color: var(--jp-mirror-editor-variable-color) }
 .highlight .c { color: var(--jp-mirror-editor-comment-color); font-style: italic } /* Comment */
@@ -56,6 +56,284 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .highlight .s1 { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Single */
 .highlight .ss { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Symbol */
 .highlight .il { color: var(--jp-mirror-editor-number-color) } /* Literal.Number.Integer.Long */
+  </style>
+<style type="text/css">
+    .navbar-brand {
+    width: 50px;
+}
+
+#ipython_notebook img {
+    display: block;
+    background: url(logo.svg) no-repeat;
+    background-size: contain;
+    width: 50px !important;
+    height: 33px;
+    padding-left: 80px;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+#shutdown_widget {
+    display: none;
+}
+
+.CodeMirror {
+    font-family: "Source Code Pro", "Menlo", "Consolas", monospace;
+}
+
+.output * {
+    font-family: "Source Code Pro", "Menlo", "Consolas", monospace !important;
+}
+
+.output button .fa {
+    font-family: "FontAwesome" !important;
+}
+
+.btn {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-tap-highlight-color: transparent;
+    text-transform: uppercase;
+    outline-width: 0;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: pointer;
+    margin: 0 0.29em;
+    border-radius: 3px;
+    vertical-align: middle;
+}
+
+.btn-xs {
+    height: 32px;
+    line-height: 28px !important;
+}
+
+#select-all {
+    margin-top: 9px;
+}
+
+/* File list */
+#tabs {
+    position: absolute;
+    top: 11px;
+    z-index: 110;
+}
+
+#tabs:first-child {
+    margin-left: 70px;
+}
+
+.nav-tabs {}
+
+.nav-tabs li {
+    height: 100%;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    transition: opacity 0.1s cubic-bezier(0.4, 0.0, 1, 1);
+}
+
+
+.list_container {
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12),
+        0 3px 1px -2px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-nav {
+    font-size: 14px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    height: 32px;
+}
+
+.indicator_area {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    height: 32px;
+}
+
+.alternate_upload .btn-upload,
+.list_toolbar .btn-group button {
+    height: 32px;
+}
+
+.alternate_upload .btn-upload {
+    line-height: 28px !important;
+}
+
+.dropdown-menu {
+    font-size: 14px;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12),
+        0 3px 1px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* Notebook UI */
+div.cell.code_cell.selected {
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12),
+        0 3px 1px -2px rgba(0, 0, 0, 0.2);
+}
+
+.checkpoint_status {
+    color: #5CAD7C;
+}
+
+.autosave_status {
+    font-size: 10px !important;
+    color: #C0C0C0;
+}
+
+.kernel_idle_icon,
+.kernel_busy_icon {
+    color: #3E872D;
+    font-weight: 900;
+}
+
+#kernel_indicator {
+    border: 0;
+}
+
+.kernel_indicator_name {
+    height: 32px;
+    display: inline-block;
+    font-size: 18px;
+    line-height: 28px;
+    color: #5CAD7C;
+    font-weight: 500;
+    vertical-align: middle;
+}
+
+/* Icon menu */
+.navbar-default {
+    background-color: transparent;
+    border-bottom: 0;
+    border-left: 0;
+    border-right: 0;
+}
+
+#maintoolbar-container:first-child {
+    margin-left: 5px;
+}
+
+.container.toolbar .fa {
+    font-size: 18px;
+}
+
+.container.toolbar .btn {
+    border: none;
+}
+
+.toolbar-btn-label {
+    display: none;
+}
+
+/* Code container */
+.container {
+    border-radius: 5px;
+}
+
+/* Running button */
+/*
+.prompt_container .run_this_cell {
+    display:flex!important;
+    color: #009fb7;
+    margin: 0 auto auto auto;
+    width: 45px!important;
+    height: 25px!important;
+    background: transparent;
+    background-color: transparent;
+    border-radius: 3px;
+    text-align: center;
+    box-sizing: border-box;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: pointer;
+    padding: 0.7em 0.57em;
+   }
+   .running .prompt_container .run_this_cell i {
+       display: none!important;
+   }
+   .running .prompt_container .run_this_cell:after {
+       font-size:10px;
+       content: "Running";
+   }
+   .prompt_container .run_this_cell i {
+       margin: auto;
+   }
+   div.code_cell:hover div.input .run_this_cell {
+    visibility: visible;
+   }
+   div.cell.code_cell.rendered.selected .run_this_cell:hover {
+    background-color: #e3e3e3;
+    background: #e3e3e3;
+    color: #5EAE7E !important;
+   }
+   div.cell.code_cell.rendered.unselected .run_this_cell:hover {
+    background-color: #e3e3e3;
+    background: #e3e3e3;
+    color: #5EAE7E !important;
+   }
+*/
+/* misc. */
+#logout {
+    display: none;
+}
+
+#ipython-main-app #tab_content #tab:last-child {
+    display: none !important;
+}
+
+.clusters_tab_link,
+#ipyclusters {
+    display: none !important;
+}
+
+body.terminal-app #header {
+    display: none !important;
+}
+
+
+/* Editor */
+/*
+.CodeMirror { background: #272822; color: #f8f8f2; }
+.CodeMirror div.CodeMirror-selected { background: #49483E; }
+.CodeMirror .CodeMirror-line::selection, .CodeMirror .CodeMirror-line > span::selection, .CodeMirror .CodeMirror-line > span > span::selection { background: rgba(73, 72, 62, .99); }
+.CodeMirror .CodeMirror-line::-moz-selection, .CodeMirror .CodeMirror-line > span::-moz-selection, .CodeMirror .CodeMirror-line > span > span::-moz-selection { background: rgba(73, 72, 62, .99); }
+.CodeMirror .CodeMirror-gutters { background: #272822; border-right: 0px; }
+.CodeMirror .CodeMirror-guttermarker { color: white; }
+.CodeMirror .CodeMirror-guttermarker-subtle { color: #d0d0d0; }
+.CodeMirror .CodeMirror-linenumber { color: #d0d0d0; }
+.CodeMirror .CodeMirror-cursor { border-left: 1px solid #f8f8f0; }
+
+.CodeMirror span.cm-comment { color: #75715e; }
+.CodeMirror span.cm-atom { color: #ae81ff; }
+.CodeMirror span.cm-number { color: #ae81ff; }
+
+.CodeMirror span.cm-property, .CodeMirror span.cm-attribute { color: #a6e22e; }
+.CodeMirror span.cm-keyword { color: #f92672; }
+.CodeMirror span.cm-string { color: #e6db74; }
+
+.CodeMirror span.cm-variable { color: #f8f8f2; }
+.CodeMirror span.cm-variable-2 { color: #9effff; }
+.CodeMirror span.cm-variable-3 { color: #66d9ef; }
+.CodeMirror span.cm-def { color: #fd971f; }
+.CodeMirror span.cm-bracket { color: #f8f8f2; }
+.CodeMirror span.cm-tag { color: #f92672; }
+.CodeMirror span.cm-header { color: #ae81ff; }
+.CodeMirror span.cm-link { color: #ae81ff; }
+.CodeMirror span.cm-error { background: #f92672; color: #f8f8f0; }
+
+.CodeMirror .CodeMirror-activeline-background { background: #373831; }
+.CodeMirror .CodeMirror-matchingbracket {
+  text-decoration: underline;
+  color: white !important;
+}
+*/
+
   </style>
 
 
@@ -4551,7 +4829,7 @@ form{
   .bp3-running-text table th, table.bp3-html-table th{
     color:#182026;
     font-weight:600; }
-
+  
   .bp3-running-text table td,
   table.bp3-html-table td{
     color:#182026; }
@@ -14238,17 +14516,17 @@ a.anchor-link {
                 },
                 displayAlign: 'center',
                 CommonHTML: {
-                    linebreaks: {
-                    automatic: true
+                    linebreaks: { 
+                    automatic: true 
                     }
                 },
                 "HTML-CSS": {
-                    linebreaks: {
-                    automatic: true
+                    linebreaks: { 
+                    automatic: true 
                     }
                 }
             });
-
+        
             MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
         }
     }
@@ -14265,7 +14543,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>&lt; <a href="05-기본 데이터 구조.html">기본 데이터 구조</a> | <a href="목차.html">목차</a> | <a href="08-함수.html">함수</a> &gt;</p>
+<p>&lt; <a href="05-기본 데이터 구조.ipynb">기본 데이터 구조</a> | <a href="목차.ipynb">목차</a> | <a href="08-함수.ipynb">함수</a> &gt;</p>
 
 </div>
 </div>
@@ -14290,11 +14568,13 @@ a.anchor-link {
 기본적인 파이썬의 조건문은 다음과 같습니다:</p>
 
 </div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span><span class="c1"># 다음 셀에 코드를 직접 입력해 보세요</span>
-<span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">15</span>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">15</span>
 
 <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;는 0&quot;</span><span class="p">)</span>
@@ -14306,19 +14586,30 @@ a.anchor-link {
     <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;는 내가 본적 없는 어떤 것&quot;</span><span class="p">)</span>
 </pre></div>
 
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span>
-</pre></div>
-
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>-15 는 음수
+</pre>
+</div>
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -14336,27 +14627,39 @@ a.anchor-link {
 예를 들어, 리스트에 있는 아이템을 하나씩 출력하기 위해 <code>for</code> 루프를 사용할 수 있습니다:</p>
 
 </div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span><span class="c1"># 다음 셀에 코드를 직접 입력해 보세요</span>
-<span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">]:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="c1"># 같은 줄에 출력합니다</span>
-</pre></div>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="c1"># 같은 줄에 출력합니다</span>
 </pre></div>
 
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>2 3 5 7 </pre>
+</div>
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -14364,31 +14667,43 @@ a.anchor-link {
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p><code>for</code> 루프는 단순합니다. 사용할 변수와 반복하기 원하는 시퀀스를 지정하고 "<code>in</code>" 연산자를 사용하여 직관적이고 읽기 좋게 이 둘을 연결합니다.
 조금 더 자세히 말하면 "<code>in</code>" 연산자의 오른쪽에 있는 객체는 어떤 파이썬의 <em>반복자</em>(interator)도 될 수 있습니다.
-반복자는 일반화된 시퀀스라고 생각할 수 있습니다. 이에 대해서는 <a href="10-반복자.html">반복자</a>에서 자세히 다루겠습니다.</p>
+반복자는 일반화된 시퀀스라고 생각할 수 있습니다. 이에 대해서는 <a href="10-반복자.ipynb">반복자</a>에서 자세히 다루겠습니다.</p>
 <p>예를 들면, 파이썬에서 가장 널리 사용하는 반복자 중에 하나는 연속된 숫자를 생성하는 <code>range</code> 객체입니다:</p>
 
 </div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span><span class="c1"># 다음 셀에 코드를 직접 입력해 보세요</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
 </pre></div>
 
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>0 1 2 3 4 5 6 7 8 9 </pre>
+</div>
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -14397,56 +14712,86 @@ a.anchor-link {
 <p>범위는 기본적으로 0부터 시작합니다. 관례상 범위의 최댓값은 포함하지 않습니다. Range 객체는 조금 더 복잡한 방식을 지원합니다:</p>
 
 </div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span><span class="c1"># 다음 셀에 코드를 직접 입력해 보세요</span>
-<span class="c1"># 5에서 10까지</span>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 5에서 10까지</span>
 <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
 </pre></div>
 
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span>
-</pre></div>
-
      </div>
 </div>
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>[5, 6, 7, 8, 9]</pre>
 </div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span><span class="c1"># 다음 셀에 코드를 직접 입력해 보세요</span>
-<span class="c1"># 2씩 건너 뛰면서 0에서 10까지</span>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 2씩 건너 뛰면서 0에서 10까지</span>
 <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 </pre></div>
 
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span>
-</pre></div>
-
      </div>
 </div>
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>[0, 2, 4, 6, 8]</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p><code>range</code> 매개변수의 의미는 <a href="06-기본 데이터 구조.html#리스트">리스트</a>에서 다룬 슬라이싱과 매우 비슷합니다.</p>
+<p><code>range</code> 매개변수의 의미는 <a href="06-기본 데이터 구조.ipynb#리스트">리스트</a>에서 다룬 슬라이싱과 매우 비슷합니다.</p>
 <p><code>range()</code> 함수가 파이썬 2와 파이썬 3의 다른 점 중 하나입니다. 파이썬 2에서는 <code>range()</code>가 리스트를 만들지만 파이썬 3에서는 <code>range()</code>는 반복 객체(iterable object)를 만듭니다.</p>
 
 </div>
@@ -14456,29 +14801,41 @@ a.anchor-link {
 <h2 id="while-&#47336;&#54532;"><code>while</code> &#47336;&#54532;<a class="anchor-link" href="#while-&#47336;&#54532;">&#182;</a></h2><p>파이썬의 다른 종류의 루프는 일정 조건이 만족할 때까지 계속 반복하는 <code>while</code> 루프입니다:</p>
 
 </div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span><span class="c1"># 다음 셀에 코드를 직접 입력해 보세요</span>
-<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
     <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 </pre></div>
 
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span>
-</pre></div>
-
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>0 1 2 3 4 5 6 7 8 9 </pre>
+</div>
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -14500,30 +14857,42 @@ a.anchor-link {
 이 경우 <code>if-else</code> 문장을 사용해서도 동일한 결과를 만들 수 있지만 <code>continue</code>가 아이디어를 표현하는데 조금 더 편리할 수 있습니다:</p>
 
 </div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span><span class="c1"># 다음 셀에 코드를 직접 입력해 보세요</span>
-<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
     <span class="c1"># n / 2의 나머지가 0이면, 루프의 나머지를 건너 뜁니다</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">continue</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
 </pre></div>
 
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span>
-</pre></div>
-
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>1 3 5 7 9 11 13 15 17 19 </pre>
+</div>
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -14533,11 +14902,13 @@ a.anchor-link {
 이 루프는 특정 값까지의 피보나치(Fibonacci) 수열을 리스트에 채우는 것입니다:</p>
 
 </div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span><span class="c1"># 다음 셀에 코드를 직접 입력해 보세요</span>
-<span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
 <span class="n">amax</span> <span class="o">=</span> <span class="mi">100</span>
 <span class="n">L</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -14550,19 +14921,30 @@ a.anchor-link {
 <span class="nb">print</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
 </pre></div>
 
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span>
-</pre></div>
-
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>[1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
+</pre>
+</div>
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -14580,11 +14962,13 @@ a.anchor-link {
 <p>이 문장이 유용한 한 가지 예로 다음 소수를 찾기 위해 잘 알려진 <em>에라토스테네스의 체</em>(Sieve of Eratosthenes) 알고리즘의 (최적화되지 않은) 구현을 생각해 보겠습니다(<a href="https://ko.wikipedia.org/wiki/%EC%97%90%EB%9D%BC%ED%86%A0%EC%8A%A4%ED%85%8C%EB%84%A4%EC%8A%A4%EC%9D%98_%EC%B2%B4">에라토스테네스의 체 위키문서 참조</a>):</p>
 
 </div>
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span><span class="c1"># 다음 셀에 코드를 직접 입력해 보세요</span>
-<span class="n">L</span> <span class="o">=</span> <span class="p">[]</span>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">L</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">nmax</span> <span class="o">=</span> <span class="mi">30</span>
 
 <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">nmax</span><span class="p">):</span>
@@ -14596,19 +14980,30 @@ a.anchor-link {
 <span class="nb">print</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
 </pre></div>
 
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span>
-</pre></div>
-
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>[2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+</pre>
+</div>
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -14620,7 +15015,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>&lt; <a href="05-기본 데이터 구조.html">기본 데이터 구조</a> | <a href="목차.html">목차</a> | <a href="08-함수.html">함수</a> &gt;</p>
+<p>&lt; <a href="05-기본 데이터 구조.ipynb">기본 데이터 구조</a> | <a href="목차.ipynb">목차</a> | <a href="08-함수.ipynb">함수</a> &gt;</p>
 
 </div>
 </div>
