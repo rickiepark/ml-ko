@@ -18,7 +18,7 @@ limitations under the License.
 <!doctype html>
 <head>
   <title>TensorFlow.js 예제: 간단한 객체 탐지</title>
-
+  <meta charset="UTF-8">
   <link rel="stylesheet" href="../shared/tfjs-examples.css" />
   <link rel="stylesheet" href="./style.css" />
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
@@ -29,32 +29,28 @@ limitations under the License.
   <div class="tfjs-example-container centered-container">
     <section class='title-area'>
       <h1>TensorFlow.js 예제: 간단한 객체 탐지</h1>
-      <p class='subtitle'>Train a model to classify and localize triangles and rectangles</p>
+      <p class='subtitle'>삼각형과 직사각형을 분류하고 위치를 감지하는 모델을 훈련합니다.</p>
     </section>
 
     <p class='section-head'>설명</p>
       <p>
-        This example page shows inference with a pretrained object-detection model
-        that can classify and localize (i.e., give the position of) target shapes
-        in simple synthesized scenes. The training happens in tfjs-node (see
-        <a href="https://github.com/tensorflow/tfjs-examples/blob/master/simple-object-detection/train.js">
-        train.js
-        </a>
-        in the source folder).
+        이 페이지는 간단한 합성 장면에서 타깃 도형을 분류하고 위치를 감지하는 사전 훈련된 객체 탐지 모델의 추론을 수행합니다.
+        모델은 tfjs-node로 훈련했습니다(<a
+        href='https://github.com/rickiepark/deep-learning-with-javascript/blob/main/simple-object-detection/train.js'
+        target='_blank'>train.js</a> 참조).
       </p>
       <p>
-        The target objects that we want to detect are triangles and rectangles,
-        in the background are line segments and circles that the model should ignore.
-        Each synthetic scene contains only one target object.
-        Each inference by the model generates the bounding box of the target
-        object (show as the blue box), which can be compared with the true
-        bounding box (show as the red box). In addition, the inference output
-        contains the class of the shape (triangle vs. rectangle).
+        감지하려는 타깃 객체는 삼각형과 직사각형입니다.
+        배경에는 모델이 무시해야 할 선분과 원이 등장합니다.
+        각 합성 장면은 하나의 타깃 객체만 포함합니다.
+        모델이 추론을 통해 생성한 (파란 상자로 표시된) 타깃 객체의 바운딩 박스를 (빨간 상자로 표시된)
+        정답 바운딩 박스와 비교할 수 있습니다.
+        또한 추론의 출력에는 도형의 클래스(삼각형 또는 직사각형)가 포함되어 있습니다.
       </p>
     </p>
 
     <div id="status">모델 로딩중...</div>
-    <button id="load-hosted-model" disabled="true">호스팅된 모델 로드합니다</button>
+    <button id="load-hosted-model" disabled="true">호스팅된 모델을 로드합니다</button>
     <button id="test" disabled="true">모델 테스트</button>
 
     <div>

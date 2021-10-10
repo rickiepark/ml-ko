@@ -16,11 +16,11 @@
  */
 
 /**
- * This file runs inference on a pretrained simple object detection model.
+ * 이 파일은 사전 훈련된 simple-object-detection 모델로 추론을 실행합니다.
  *
- * The model is defined and trained with `train.js`.
- * The data used for model training and model inference are synthesized
- * programmatically. See `synthetic_images.js` for details.
+ * 모델은 `train.js`에 정의되어 있고 훈련되었습니다.
+ * 모델 훈련과 추론에 사용한 데이터는 프로그래밍적으로 합성한 것입니다.
+ * 자세한 내용은 `synthetic_images.js` 파일을 참고하세요.
  */
 
 import {ObjectDetectionImageSynthesizer} from './synthetic_images.js';
@@ -41,12 +41,12 @@ const PREDICT_BOUNDING_BOX_STYLE = 'rgb(0,0,255)';
 function drawBoundingBoxes(canvas, trueBoundingBox, predictBoundingBox) {
   tf.util.assert(
       trueBoundingBox != null && trueBoundingBox.length === 4,
-      `Expected boundingBoxArray to have length 4, ` +
-          `but got ${trueBoundingBox} instead`);
+      `trueBoundingBox의 길이는 4를 기대합니다, ` +
+          `하지만 현재는 ${trueBoundingBox}입니다.`);
   tf.util.assert(
       predictBoundingBox != null && predictBoundingBox.length === 4,
-      `Expected boundingBoxArray to have length 4, ` +
-          `but got ${trueBoundingBox} instead`);
+      `predictBoundingBox의 길이는 4를 기대합니다, ` +
+          `하지만 현재는 ${trueBoundingBox}입니다.`);
 
   let left = trueBoundingBox[0];
   let right = trueBoundingBox[1];
@@ -89,12 +89,12 @@ function drawBoundingBoxes(canvas, trueBoundingBox, predictBoundingBox) {
 }
 
 /**
- * Synthesize an input image, run inference on it and visualize the results.
+ * 입력 이미지를 합성하고 추론을 수행한 다음 결과를 시각화합니다.
  *
- * @param {tf.Model} model Model to be used for inference.
+ * @param {tf.Model} model 추론에 사용할 모델
  */
 async function runAndVisualizeInference(model) {
-  // Synthesize an input image and show it in the canvas.
+  // 입력 이미지를 합성하고 캔바스에 그립니다.
   const synth = new ObjectDetectionImageSynthesizer(canvas, tf);
 
   const numExamples = 1;
@@ -104,25 +104,23 @@ async function runAndVisualizeInference(model) {
       numExamples, numCircles, numLineSegments);
 
   const t0 = tf.util.now();
-  // Runs inference with the model.
+  // 모델의 추론을 수행합니다.
   const modelOut = await model.predict(images).data();
   inferenceTimeMs.textContent = `${(tf.util.now() - t0).toFixed(1)}`;
 
-  // Visualize the true and predicted bounding boxes.
+  // 정답 바운딩 박스와 예측한 바운딩 박스를 그립니다.
   const targetsArray = Array.from(await targets.data());
   const boundingBoxArray = targetsArray.slice(1);
   drawBoundingBoxes(canvas, boundingBoxArray, modelOut.slice(1));
 
-  // Display the true and predict object classes.
+  // 객체의 정답 클래스와 예측 클래스를 출력합니다.
   const trueClassName = targetsArray[0] > 0 ? '직사각형' : '삼각형';
   trueObjectClass.textContent = trueClassName;
 
-  // The model predicts a number to indicate the predicted class
-  // of the object. It is trained to predict 0 for triangle and
-  // 224 (canvas.width) for rectangel. This is how the model combines
-  // the class loss with the bounding-box loss to form a single loss
-  // value. Therefore, at inference time, we threshold the number
-  // by half of 224 (canvas.width).
+  // 모델이 객체의 예측 클래스를 나타내는 숫자를 출력합니다.
+  // 삼각형은 0이고 직사각형은 224(canvas.width)를 예측하도록 훈련됩니다.
+  // 이는 모델이 클래스 손실과 바운딩 박스 손실을 합쳐서 하나의 손실 값을 만들기 위해서입니다.
+  // 따라서 추론 시에는 224(canvas.width)의 절반이 임곗값이 됩니다.
   const shapeClassificationThreshold = canvas.width / 2;
   const predictClassName =
       (modelOut[0] > shapeClassificationThreshold) ? '직사각형' : '삼각형';
@@ -136,7 +134,7 @@ async function runAndVisualizeInference(model) {
     predictedObjectClass.classList.add('shape-class-wrong');
   }
 
-  // Tensor memory cleanup.
+  // 텐서 메모리 삭제
   tf.dispose([images, targets]);
 }
 
@@ -145,34 +143,34 @@ async function init() {
   const HOSTED_MODEL_PATH =
       'https://storage.googleapis.com/tfjs-examples/simple-object-detection/dist/object_detection_model/model.json';
 
-  // Attempt to load locally-saved model. If it fails, activate the
-  // "Load hosted model" button.
+  // 로컬에 저장된 모델을 로드합니다.
+  // 실패시 "호스팅된 모델을 로드합니다" 버튼을 활성화합니다.
   let model;
   try {
     model = await tf.loadLayersModel(LOCAL_MODEL_PATH);
     model.summary();
     testModel.disabled = false;
-    status.textContent = 'Loaded locally-saved model! Now click "Test Model".';
+    status.textContent = '로컬에 저장된 모델을 로드했습니다! 이제 "모델 테스트"를 클릭하세요!';
     runAndVisualizeInference(model);
   } catch (err) {
-    status.textContent = 'Failed to load locally-saved model. ' +
-        'Please click "Load Hosted Model"';
+    status.textContent = '로컬에 저장된 모델을 로드하는데 실패했습니다. ' +
+        '"호스팅된 모델을 로드합니다"를 클릭하세요';
     loadHostedModel.disabled = false;
   }
 
   loadHostedModel.addEventListener('click', async () => {
     try {
-      status.textContent = `Loading hosted model from ${HOSTED_MODEL_PATH} ...`;
+      status.textContent = `${HOSTED_MODEL_PATH}에서 모델을 로드하는 중...`;
       model = await tf.loadLayersModel(HOSTED_MODEL_PATH);
       model.summary();
       loadHostedModel.disabled = true;
       testModel.disabled = false;
       status.textContent =
-          `Loaded hosted model successfully. Now click "Test Model".`;
+          `호스팅된 모델을 로드했습니다! 이제 "모델 테스트"를 클릭하세요!`;
       runAndVisualizeInference(model);
     } catch (err) {
       status.textContent =
-          `Failed to load hosted model from ${HOSTED_MODEL_PATH}`;
+          `${HOSTED_MODEL_PATH}에서 모델을 로드하는데 실패했습니다.`;
     }
   });
 

@@ -16,20 +16,18 @@
  */
 
 /**
- * Module for synthesizing images to be used for training and testing the
- * simple object-detection model.
+ * simple-object-detection 모델을 훈련하고 테스트하는데 사용하기 위한 이미지 합성 모듈
  *
- * This module is written in a way that can be used in both the Node.js-based
- * training pipeline (train.js) and the browser-based testing environment
- * (index.js).
+ * 이 모듈은 Node.js 기반 훈련 파이프라인(train.js)과 브라우저 기반의 테스트 환경(index.js)에서
+ * 모두 사용할 수 있도록 만들었습니다.
  */
 
-let tf;  // tensorflowjs module passed in for browser/node compatibility.
+let tf;  // 브라우저/노드 호환성을 위해 전달된 tensorflowjs 모듈
 
 /**
- * Generate a random color style for canvas strokes and fills.
+ * 캔바스 스트로크와 색 채우기를 위한 랜덤한 컬러 스타일을 생성합니다.
  *
- * @returns {string} Style string in the form of 'rgb(100,200,250)'.
+ * @returns {string} 'rgb(100,200,250)' 형태의 스타일 문자열
  */
 function generateRandomColorStyle() {
   const colorR = Math.round(Math.random() * 255);
@@ -39,62 +37,55 @@ function generateRandomColorStyle() {
 }
 
 /**
- * Synthesizes images for simple object recognition.
+ * 간단한 객체 인식을 위한 이미지를 합성합니다.
  *
- * The synthesized imags consist of
- * - a white background
- * - a configurable number of circles of random radii and random color
- * - a configurable number of line segments of random starting and ending
- *   points and random color
- * - Target object: a rectangle or a triangle, with configurable probabilities.
- *   - If a rectangle, the side lengths are random and so is the color
- *   - If a triangle, it is always equilateral. The side length and the color
- *     is random and the triangle is rotated by a random angle.
+ * 합성 이미지는 다음과 같은 요소로 구성됩니다.
+ * - 흰 배경
+ * - 랜덤한 크기와 색깔의 원으로 개수는 설정 가능합니다.
+ * - 시작과 끝 위치가 랜덤하고 색깔이 랜덤한 선분으로 개수는 설정 가능합니다.
+ * - 타깃 객체: 지정된 확률에 따라 직사각형 또는 삼각형
+ *   - 직사각형이면 변 길이와 색깔이 랜덤합니다.
+ *   - 삼각형이면 항상 정삼각형입니다. 변 길이와 색깔이 랜덤하고 랜덤한 각도로 회전되어 있습니다.
  */
 export class ObjectDetectionImageSynthesizer {
   /**
-   * Constructor of ObjectDetectionImageSynthesizer.
+   * ObjectDetectionImageSynthesizer의 생성자
    *
-   * @param {} canvas An HTML canvas object or node-canvas object.
-   * @param {*} tensorFlow A tensorflow module passed in. This done for
-   *   compatibility between browser and Node.js.
+   * @param {} canvas HTML 캔버스 객체 또는 node 캔버스 객체
+   * @param {*} tensorFlow 전달된 텐서플로 모듈. 이는 브라우저와 Node.js 간의 호환성을 위한 것입니다.
    */
   constructor(canvas, tensorFlow) {
     this.canvas = canvas;
     tf = tensorFlow;
 
-    // Min and max of circles' radii.
+    // 원 반지름의 최소, 최댓값
     this.CIRCLE_RADIUS_MIN = 5;
     this.CIRCLE_RADIUS_MAX = 20;
-    // Min and max of rectangle side lengths.
+    // 직사각형의 변 길이의 최소, 최댓값
     this.RECTANGLE_SIDE_MIN = 40;
     this.RECTANGLE_SIDE_MAX = 100;
-    // Min and max of triangle side lengths.
+    // 삼각형 변 길이의 최소, 최댓값
     this.TRIANGLE_SIDE_MIN = 50;
     this.TRIANGLE_SIDE_MAX = 100;
 
-    // Canvas dimensions.
+    // 캔버스 크기
     this.w = this.canvas.width;
     this.h = this.canvas.height;
   }
 
   /**
-   * Generate a single image example.
+   * 하나의 이미지 샘플을 생성합니다.
    *
-   * @param {number} numCircles Number of circles (background object type)
-   *   to include.
-   * @param {number} numLines Number of line segments (backgrond object
-   *   type) to include
-   * @param {number} triangleProbability The probability of the target
-   *   object being a triangle (instead of a rectangle). Must be a number
-   *   >= 0 and <= 1. Default: 0.5.
-   * @returns {Object} An object with the following fields:
-   *   - image: A [w, h, 3]-shaped tensor for the pixel content of the image.
-   *     w and h are the width and height of the canvas, respectively.
-   *   - target: A [5]-shaped tensor. The first element is a 0-1 indicator
-   *     for whether the target is a triangle (0) or a rectangle (1).
-   *     The remaning four elements are the bounding box of the shape:
-   *     [left, right, top, bottom], in the unit of pixels.
+   * @param {number} numCircles 포함시킬 (배경 객체인) 원 개수
+   * @param {number} numLines 포함시킬 (배경 객체인) 선분 개수
+   * @param {number} triangleProbability 타깃 개체가 (직사각형이 아니라) 삼각형이 될 확률.
+   *   이 숫자는 0보다 크거나 같고 1보다 작거나 같아야 합니다. 기본값은 0.5입니다.
+   * @returns {Object} 다음 항목을 가진 객체.
+   *   - image: 이미지의 픽셀 내용을 담은 [w, h, 3] 크기의 텐서.
+   *     w와 h는 캔버스의 너비와 높이입니다.
+   *   - target: [5] 크기의 텐서.
+   *     첫 번째 원소는 타깃이 삼각형(0)인지 직사각형(1)인지 나타냅니다.
+   *     남은 네 개의 원소는 도형의 바운딩 박스입니다. 픽셀 단위로 [왼쪽, 오른쪽, 위, 아래] 크기입니다.
    */
   async generateExample(numCircles, numLines, triangleProbability = 0.5) {
     if (triangleProbability == null) {
@@ -102,33 +93,32 @@ export class ObjectDetectionImageSynthesizer {
     }
     tf.util.assert(
         triangleProbability >= 0 && triangleProbability <= 1,
-        `triangleProbability must be a number >= 0 and <= 1, but got ` +
-            `${triangleProbability}`);
+        `triangleProbability는 0보다 크거나 같고 1보다 작거나 같아야 합니다. 하지만 ` +
+            `${triangleProbability}를 입력했습니다.`);
 
     const ctx = this.canvas.getContext('2d');
-    ctx.clearRect(0, 0, this.w, this.h);  // Clear canvas.
+    ctx.clearRect(0, 0, this.w, this.h);  // 캔버스 클리어
 
-    // Draw circles (1st half).
+    // 원 크리기 (절반)
     for (let i = 0; i < numCircles / 2; ++i) {
       this.drawCircle(ctx);
     }
 
-    // Draw lines segments (1st half).
+    // 선분 그리기 (절반)
     for (let i = 0; i < numLines / 2; ++i) {
       this.drawLineSegment(ctx);
     }
 
-    // Draw the target object: a rectangle or an equilateral triangle.
-    // Determine whether the target is a rectangle or a triangle.
+    // 타깃 객체 그리기: 직사각형 또는 정삼각형
+    // 타깃이 직사각형인지 삼각형인지 결정합니다.
     const isRectangle = Math.random() > triangleProbability;
 
     let boundingBox;
     ctx.fillStyle = generateRandomColorStyle();
     ctx.beginPath();
     if (isRectangle) {
-      // Draw a rectangle.
-      // Both side lengths of the rectangle are random and independent of
-      // each other.
+      // 직사각형을 그립니다.
+      // 직사각형의 두 변의 길이는 랜덤하며 서로 독립적입니다.
       const rectangleW =
           Math.random() * (this.RECTANGLE_SIDE_MAX - this.RECTANGLE_SIDE_MIN) +
           this.RECTANGLE_SIDE_MIN;
@@ -140,26 +130,24 @@ export class ObjectDetectionImageSynthesizer {
       boundingBox =
           this.drawRectangle(ctx, centerX, centerY, rectangleH, rectangleW);
     } else {
-      // Draw an equilateral triangle, rotated by a random angle.
-      // The distance from the center of the triangle to any of the three
-      // vertices.
+      // 랜덤한 각도로 회전한 정삼각형을 그립니다.
+      // 정삼각형의 중심에서 세 개의 꼭지점까지 거리.
       const side = this.TRIANGLE_SIDE_MIN +
           (this.TRIANGLE_SIDE_MAX - this.TRIANGLE_SIDE_MIN) * Math.random();
       const centerX = (this.w - side) * Math.random() + (side / 2);
       const centerY = (this.h - side) * Math.random() + (side / 2);
-      // Rotate the equilateral triangle by a random angle uniformly
-      // distributed between 0 and degrees.
-      const angle = Math.PI / 3 * 2 * Math.random();  // 0 - 120 degrees.
+      // 0~120도 사이의 균등 분포에서 선택한 랜덤한 각도로 정삼각형을 회전합니다.
+      const angle = Math.PI / 3 * 2 * Math.random();  // 0 - 120도.
       boundingBox = this.drawTriangle(ctx, centerX, centerY, side, angle);
     }
     ctx.fill();
 
-    // Draw circles (2nd half).
+    // 원 그리기 (나머지 절반)
     for (let i = numCircles / 2; i < numCircles; ++i) {
       this.drawCircle(ctx);
     }
 
-    // Draw lines segments (2nd half).
+    // 선분 그리기 (나머지 절반)
     for (let i = numLines / 2; i < numLines; ++i) {
       this.drawLineSegment(ctx);
     }
@@ -200,19 +188,17 @@ export class ObjectDetectionImageSynthesizer {
   }
 
   /**
-   * Draw a rectangle.
+   * 직사각형을 그립니다.
    *
-   * A rectangle is a target object in the simple object detection task here.
-   * Therefore, its bounding box is returned.
+   * 간단한 객체 탐지 예제에서 사각형은 타깃 객체이므로 바운딩 박스를 반환합니다.
    *
-   * @param {} ctx  Canvas context.
-   * @param {number} centerX Center x-coordinate of the triangle.
-   * @param {number} centerY Center y-coordinate of the triangle.
-   * @param {number} w Width of the rectangle.
-   * @param {number} h Height of the rectangle.
-   * @param {number} angle Angle that the triangle is rotated for, in radians.
-   * @returns {[number, number, number, number]} Bounding box of the rectangle:
-   *   [left, right, top bottom].
+   * @param {} ctx  캔바스 컨택스트
+   * @param {number} centerX 직사각형 중심의 x 좌표
+   * @param {number} centerY 직사각형 중심의 y 좌표
+   * @param {number} w 직사각형의 너비
+   * @param {number} h 직사각형의 높이
+   * @returns {[number, number, number, number]} 직사각형의 바운딩 박스:
+   *   [왼쪽, 오른쪽, 위, 아래]
    */
   drawRectangle(ctx, centerX, centerY, w, h) {
     ctx.moveTo(centerX - w / 2, centerY - h / 2);
@@ -224,18 +210,17 @@ export class ObjectDetectionImageSynthesizer {
   }
 
   /**
-   * Draw an equilateral triangle.
+   * 삼각형을 그립니다.
    *
-   * A triangle are a target object in the simple object detection task here.
-   * Therefore, its bounding box is returned.
+   * 간단한 객체 탐지 예제에서 삼각형은 타깃 객체이므로 바운딩 박스를 반환합니다.
    *
-   * @param {} ctx  Canvas context.
-   * @param {number} centerX Center x-coordinate of the triangle.
-   * @param {number} centerY Center y-coordinate of the triangle.
-   * @param {number} side Length of the side.
-   * @param {number} angle Angle that the triangle is rotated for, in radians.
-   * @returns {[number, number, number, number]} Bounding the triangle, with
-   *   the rotation taken into account: [left, right, top bottom].
+   * @param {} ctx  캔바스 컨택스트
+   * @param {number} centerX 삼각형 중심의 x 좌표
+   * @param {number} centerY 삼각형 중심의 x 좌표
+   * @param {number} side 변의 길이
+   * @param {number} angle 삼각형 회전 각도(라디안)
+   * @returns {[number, number, number, number]} 회전을 고려한 삼각형의 바운딩 박스:
+   *   [왼쪽, 오른쪽, 위, 아래].
    */
   drawTriangle(ctx, centerX, centerY, side, angle) {
     const ctrToVertex = side / 2 / Math.cos(30 / 180 * Math.PI);
@@ -262,21 +247,17 @@ export class ObjectDetectionImageSynthesizer {
   }
 
   /**
-   * Generate a number (i.e., batch) of examples.
+   * 배치 샘플을 생성합니다.
    *
-   * @param {number} batchSize Number of example image in the batch.
-   * @param {number} numCircles Number of circles (background object type)
-   *   to include.
-   * @param {number} numLines Number of line segments (background object type)
-   *   to include.
-   * @returns {Object} An object with the following fields:
-   *   - image: A [batchSize, w, h, 3]-shaped tensor for the pixel content of
-   *     the image. w and h are the width and height of the canvas,
-   *     respectively.
-   *   - target: A [batchSize, 5]-shaped tensor. The first column is a 0-1
-   *     indicator for whether the target is a triangle(0) or a rectangle (1).
-   *     The remaning four columns are the bounding box of the shape:
-   *     [left, right, top, bottom], in the unit of pixels.
+   * @param {number} batchSize 배치에 있는 샘플 이미지의 개수
+   * @param {number} numCircles 포함할 원 개수 (배경 객체)
+   * @param {number} numLines 포함할 선분 객체 (배경 객체)
+   * @returns {Object} 다음 조건을 가진 객체An object with the following fields:
+   *   - image: 이미지의 픽셀 컨텐츠를 담은 [batchSize, w, h, 3] 크기의 텐서.
+   *     w와 h는 캔바스의 너비와 높이입니다.
+   *   - target: [batchSize, 5] 크기의 텐서. 첫 번째 열은 타깃이 삼각형(0) 또는 직사각형(1)인지
+   *     나타내는 0-1 표시자입니다. 남은 네 열은 도형의 바운딩 박스입니다(픽셀 단위):
+   *     [왼쪽, 오른쪽, 위, 아래]
    */
   async generateExampleBatch(
       batchSize, numCircles, numLines, triangleProbability) {

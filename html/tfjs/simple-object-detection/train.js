@@ -23,67 +23,61 @@ const canvas = require('canvas');
 const tf = require('@tensorflow/tfjs');
 const synthesizer = require('./synthetic_images');
 
-const CANVAS_SIZE = 224;  // Matches the input size of MobileNet.
+const CANVAS_SIZE = 224;  // MobileNet의 입력 크기와 같아야 합니다.
 
-// Name prefixes of layers that will be unfrozen during fine-tuning.
+// 미세 튜닝할 때 동결 해제할 층의 이름
 const topLayerGroupNames = ['conv_pw_9', 'conv_pw_10', 'conv_pw_11'];
 
-// Name of the layer that will become the top layer of the truncated base.
+// 헤드가 없는 베이스 모델의 최상위 층 이름
 const topLayerName =
     `${topLayerGroupNames[topLayerGroupNames.length - 1]}_relu`;
 
-// Used to scale the first column (0-1 shape indicator) of `yTrue`
-// in order to ensure balanced contributions to the final loss value
-// from shape and bounding-box predictions.
+// `yTrue`의 첫 번째 열(0-1 도형 표시자)의 스케일을 조정하여 도형과 바운딩 박스를 합친
+// 최종 손실 값에 공평하게 기여하게 만듭니다.
 const LABEL_MULTIPLIER = [CANVAS_SIZE, 1, 1, 1, 1];
 
 /**
- * Custom loss function for object detection.
+ * 객체 탐지를 위한 사용자 정의 손실 함수
  *
- * The loss function is a sum of two losses
- * - shape-class loss, computed as binaryCrossentropy and scaled by
- *   `classLossMultiplier` to match the scale of the bounding-box loss
- *   approximatey.
- * - bounding-box loss, computed as the meanSquaredError between the
- *   true and predicted bounding boxes.
- * @param {tf.Tensor} yTrue True labels. Shape: [batchSize, 5].
- *   The first column is a 0-1 indicator for whether the shape is a triangle
- *   (0) or a rectangle (1). The remaining for columns are the bounding boxes
- *   for the target shape: [left, right, top, bottom], in unit of pixels.
- *   The bounding box values are in the range [0, CANVAS_SIZE).
- * @param {tf.Tensor} yPred Predicted labels. Shape: the same as `yTrue`.
- * @return {tf.Tensor} Loss scalar.
+ * 이 손실 함수는 손실 두 개를 합한 것입니다.
+ * - 도형 손실은 binaryCrossentropy로 계산하고 바운딩 박스 손실의 스케일에 맞추기 위해
+ *   `classLossMultiplier`를 곱합니다.
+ * - 바운딩 박스 손실은 정답 바운딩 박스와 예측한 바운딩 박스 사이의 meanSquaredError로 계산합니다.
+ * @param {tf.Tensor} yTrue 진짜 레이블. 크기: [batchSize, 5].
+ *   첫 번째 열은 타깃이 삼각형(0) 또는 직사각형(1)인지
+ *   나타내는 0-1 표시자입니다. 남은 네 열은 도형의 바운딩 박스입니다(픽셀 단위):
+ *   [왼쪽, 오른쪽, 위, 아래]
+ *   바운딩 박스 크기는 [0, CANVAS_SIZE) 범위입니다.
+ * @param {tf.Tensor} yPred 예측한 레이블. 크기: `yTrue`와 같음.
+ * @return {tf.Tensor} 손실 값
  */
 function customLossFunction(yTrue, yPred) {
   return tf.tidy(() => {
-    // Scale the the first column (0-1 shape indicator) of `yTrue` in order
-    // to ensure balanced contributions to the final loss value
-    // from shape and bounding-box predictions.
+    // `yTrue`의 첫 번째 열(0-1 도형 표시자)의 스케일을 조정하여 도형과 바운딩 박스를 합친
+    // 최종 손실 값에 공평하게 기여하게 만듭니다.
     return tf.metrics.meanSquaredError(yTrue.mul(LABEL_MULTIPLIER), yPred);
   });
 }
 
 /**
- * Loads MobileNet, removes the top part, and freeze all the layers.
+ * MobileNet을 로드하고 헤드를 제거한 다음 모든 층을 동결합니다.
  *
- * The top removal and layer freezing are preparation for transfer learning.
+ * 헤드 삭제와 층 동결은 전이 학습을 위한 준비 작업입니다.
  *
- * Also gets handles to the layers that will be unfrozen during the fine-tuning
- * phase of the training.
+ * 또한 미세 튜닝 단계에서 동결 해제할 층 이름을 구합니다.
  *
- * @return {tf.Model} The truncated MobileNet, with all layers frozen.
+ * @return {tf.Model} 모든 층이 동결된 헤드가 없는 MobileNet
  */
 async function loadTruncatedBase() {
-  // TODO(cais): Add unit test.
   const mobilenet = await tf.loadLayersModel(
       'https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json');
 
-  // Return a model that outputs an internal activation.
+  // 중간 활성화 값을 출력하는 모델을 반환합니다.
   const fineTuningLayers = [];
   const layer = mobilenet.getLayer(topLayerName);
   const truncatedBase =
       tf.model({inputs: mobilenet.inputs, outputs: layer.output});
-  // Freeze the model's layers.
+  // 모델의 층을 동결합니다.
   for (const layer of truncatedBase.layers) {
     layer.trainable = false;
     for (const groupName of topLayerGroupNames) {
@@ -96,41 +90,39 @@ async function loadTruncatedBase() {
 
   tf.util.assert(
       fineTuningLayers.length > 1,
-      `Did not find any layers that match the prefixes ${topLayerGroupNames}`);
+      `${topLayerGroupNames}로 시작하는 층을 찾지 못했습니다.`);
   return {truncatedBase, fineTuningLayers};
 }
 
 /**
- * Build a new head (i.e., output sub-model) that will be connected to
- * the top of the truncated base for object detection.
+ * 객체 탐지를 위해 헤드가 없는 베이스 모델 위에 놓을 새로운 헤드를 만듭니다.
  *
- * @param {tf.Shape} inputShape Input shape of the new model.
- * @returns {tf.Model} The new head model.
+ * @param {tf.Shape} inputShape 새로운 모델의 입력 크기
+ * @returns {tf.Model} 새로운 모델의 헤드
  */
 function buildNewHead(inputShape) {
   const newHead = tf.sequential();
   newHead.add(tf.layers.flatten({inputShape}));
   newHead.add(tf.layers.dense({units: 200, activation: 'relu'}));
-  // Five output units:
-  //   - The first is a shape indictor: predicts whether the target
-  //     shape is a triangle or a rectangle.
-  //   - The remaining four units are for bounding-box prediction:
-  //     [left, right, top, bottom] in the unit of pixels.
+  // 다섯 개의 출력 유닛:
+  //   - 첫 번짼느 도형 표시자: 타깃 도형이 삼각형인지 직사각형인지 예측합니다.
+  //   - 남은 네 개의 유닛은 바운딩 박스 예측에 사용됩니다:
+  //     픽셀 단위의 [왼쪽, 오른쪽, 위, 아래]
   newHead.add(tf.layers.dense({units: 5}));
   return newHead;
 }
 
 /**
- * Builds object-detection model from MobileNet.
+ * MobileNet으로 객체 탐지 모델 만들기
  *
  * @returns {[tf.Model, tf.layers.Layer[]]}
- *   1. The newly-built model for simple object detection.
- *   2. The layers that can be unfrozen during fine-tuning.
+ *   1. 간단한 객체 탐지를 위해 새로 만든 모델
+ *   2. 미세 튜닝 단계에서 동결 해제할 층
  */
 async function buildObjectDetectionModel() {
   const {truncatedBase, fineTuningLayers} = await loadTruncatedBase();
 
-  // Build the new head model.
+  // 새로운 헤드 모델을 만듭니다
   const newHead = buildNewHead(truncatedBase.outputs[0].shape.slice(1));
   const newOutput = newHead.apply(truncatedBase.outputs[0]);
   const model = tf.model({inputs: truncatedBase.inputs, outputs: newOutput});
@@ -139,65 +131,63 @@ async function buildObjectDetectionModel() {
 }
 
 (async function main() {
-  // Data-related settings.
+  // 데이터 관련 설정
   const numCircles = 10;
   const numLines = 10;
 
   const parser = new argparse.ArgumentParser();
   parser.addArgument('--gpu', {
     action: 'storeTrue',
-    help: 'Use tfjs-node-gpu for training (required CUDA and CuDNN)'
+    help: '훈련에 tfjs-node-gpu를 사용합니다(CUDA와 CuDNN 필요)'
   });
   parser.addArgument(
       '--numExamples',
-      {type: 'int', defaultValue: 2000, help: 'Number of training exapmles'});
+      {type: 'int', defaultValue: 2000, help: '훈련 샘플 개수'});
   parser.addArgument('--validationSplit', {
     type: 'float',
     defaultValue: 0.15,
-    help: 'Validation split to be used during training'
+    help: '훈련에 사용할 검증 세트 비율'
   });
   parser.addArgument('--batchSize', {
     type: 'int',
     defaultValue: 128,
-    help: 'Batch size to be used during training'
+    help: '훈련에 사용할 배치 크기'
   });
   parser.addArgument('--initialTransferEpochs', {
     type: 'int',
     defaultValue: 100,
-    help: 'Number of training epochs in the initial transfer ' +
-        'learning (i.e., 1st) phase'
+    help: '전이 학습 초기 단계에서 수행할 훈련 에포크 횟수'
   });
   parser.addArgument('--fineTuningEpochs', {
     type: 'int',
     defaultValue: 100,
-    help: 'Number of training epochs in the fine-tuning (i.e., 2nd) phase'
+    help: '미세 튜닝 단계에서 수행할 훈련 에포크 횟수'
   });
   parser.addArgument('--logDir', {
     type: 'string',
-    help: 'Optional tensorboard log directory, to which the loss ' +
-    'values will be logged during model training.'
+    help: '텐서보드 로그 디렉토리. 모델이 훈련할 때 손실 값을 기록합니다.'
   });
   parser.addArgument('--logUpdateFreq', {
     type: 'string',
     defaultValue: 'batch',
     optionStrings: ['batch', 'epoch'],
-    help: 'Frequency at which the loss will be logged to tensorboard.'
+    help: '텐서보드로 손실을 기록할 주기'
   });
   const args = parser.parseArgs();
 
   let tfn;
   if (args.gpu) {
-    console.log('Training using GPU.');
+    console.log('GPU로 훈련합니다.');
     tfn = require('@tensorflow/tfjs-node-gpu');
   } else {
-    console.log('Training using CPU.');
+    console.log('CPU로 훈련합니다.');
     tfn = require('@tensorflow/tfjs-node');
   }
 
   const modelSaveURL = 'file://./dist/object_detection_model';
 
   const tBegin = tf.util.now();
-  console.log(`Generating ${args.numExamples} training examples...`);
+  console.log(`${args.numExamples}개의 훈련 샘플 생성 중...`);
   const synthDataCanvas = canvas.createCanvas(CANVAS_SIZE, CANVAS_SIZE);
   const synth =
       new synthesizer.ObjectDetectionImageSynthesizer(synthDataCanvas, tf);
@@ -208,8 +198,8 @@ async function buildObjectDetectionModel() {
   model.compile({loss: customLossFunction, optimizer: tf.train.rmsprop(5e-3)});
   model.summary();
 
-  // Initial phase of transfer learning.
-  console.log('Phase 1 of 2: initial transfer learning');
+  // 전이 학습의 초기 단계
+  console.log('단계 1 / 2: 초기 전이 학습');
   await model.fit(images, targets, {
     epochs: args.initialTransferEpochs,
     batchSize: args.batchSize,
@@ -219,19 +209,19 @@ async function buildObjectDetectionModel() {
     })
   });
 
-  // Fine-tuning phase of transfer learning.
-  // Unfreeze layers for fine-tuning.
+  // 전이 학습의 미세 튜닝 단계
+  // 미세 튜닝을 위해 층을 동결 해제합니다.
   for (const layer of fineTuningLayers) {
     layer.trainable = true;
   }
   model.compile({loss: customLossFunction, optimizer: tf.train.rmsprop(2e-3)});
   model.summary();
 
-  // Do fine-tuning.
-  // The batch size is reduced to avoid CPU/GPU OOM. This has
-  // to do with the unfreezing of the fine-tuning layers above,
-  // which leads to higher memory consumption during backpropagation.
-  console.log('Phase 2 of 2: fine-tuning phase');
+  // 미세 튜닝을 수행합니다.
+  // CPU/GPU 메모리 부족을 피하기 위해 배치 크기를 줄입니다. This has
+  // 이는 미세 튜닝에서 층을 동결 해제한 것과 관련이 있습니다.
+  // 역전파 동안에 많은 메모리를 소모하게 됩니다.
+  console.log('단계 2 / 2: 미세 튜닝 단계');
   await model.fit(images, targets, {
     epochs: args.fineTuningEpochs,
     batchSize: args.batchSize / 2,
@@ -241,17 +231,17 @@ async function buildObjectDetectionModel() {
     })
   });
 
-  // Save model.
-  // First make sure that the base directory dists.
+  // 모델을 저장합니다.
+  // 먼저 기본 디렉토리 위치를 확인합니다.
   const modelSavePath = modelSaveURL.replace('file://', '');
   const dirName = path.dirname(modelSavePath);
   if (!fs.existsSync(dirName)) {
     fs.mkdirSync(dirName);
   }
   await model.save(modelSaveURL);
-  console.log(`Model training took ${(tf.util.now() - tBegin) / 1e3} s`);
-  console.log(`Trained model is saved to ${modelSaveURL}`);
+  console.log(`모델 훈련 시간: ${(tf.util.now() - tBegin) / 1e3} s`);
+  console.log(`훈련된 모델 저장 위치: ${modelSaveURL}`);
   console.log(
-      `\nNext, run the following command to test the model in the browser:`);
-  console.log(`\n  yarn watch`);
+      `\n이제 다음으로 브라우저에서 모델을 테스트하려면 다음 명령을 실행하세요:`);
+  console.log(`\n  cd ..; npx http-server`);
 })();
