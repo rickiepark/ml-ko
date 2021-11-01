@@ -16,10 +16,9 @@
  */
 
 /**
- * This is the front-end of the visualize-convnet example.
+ * visualize-convnet 예제의 프론트 엔드 스크립트.
  *
- * It loads display the image files and associated metainformation generated
- * by main.js in Node.js.
+ * 이미지 파일과 Node.js에서 main.js으로 생성한 메타 정보를 출력합니다.
  */
 
 const vizSection = document.getElementById('viz-section');
@@ -31,11 +30,11 @@ function normalizePath(path) {
 }
 
 async function run() {
-  //  Empty the image-and-result section.
+  //  입력-결과 섹션을 비웁니다.
   while (imageResultSection.firstChild) {
     imageResultSection.removeChild(imageResultSection.firstChild);
   }
-  // Empty the viz section.
+  // 시각화 섹션을 비웁니다.
   while (vizSection.firstChild) {
     vizSection.removeChild(vizSection.firstChild);
   }
@@ -45,13 +44,13 @@ async function run() {
   const filterManifest =
       await (await fetch('filters/filters-manifest.json')).json();
 
-  // Render the input image in the image-result section.
+  // 이미지-결과 섹션에 이미지를 렌더링합니다.
   const inputImage = document.createElement('img');
   inputImage.classList.add('input-image');
   inputImage.src = normalizePath(activationManifest.origImagePath);
   imageResultSection.appendChild(inputImage);
 
-  // Render the top-3 classification results.
+  // 최상위 3개 분류 결과를 렌더링합니다.
   for (let i = 0; i < 3; ++i) {
     const outputClassDiv = document.createElement('div');
     outputClassDiv.textContent = `${activationManifest.classNames[i]} ` +
